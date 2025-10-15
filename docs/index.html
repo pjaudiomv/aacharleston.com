@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <meta
             name="viewport"
             content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <meta name="description"
-          content="AA meeting finder for Berkeley, Charleston and Dorchester Counties of South Carolina"/>
+    <meta name="description" content="AA meeting finder for Berkeley, Charleston and Dorchester Counties of South Carolina" />
     <title>AA Meetings - Berkeley, Charleston and Dorchester Counties of South Carolina</title>
     <style type="text/css">
         @media (prefers-color-scheme: dark) {
@@ -15,7 +14,6 @@
                 background-color: black;
                 color: white;
             }
-
             #tsml-ui {
                 --alert-background: #191919;
                 --alert-text: #bbb;
@@ -30,15 +28,16 @@
     </style>
 </head>
 <body style="margin: 0">
+<!--https://tcio.org/wp-json/tsml/meetings-->
 <div
         id="tsml-ui"
-        data-src="https://tcio.org/wp-json/tsml/meetings"
+        data-src="/meetings.json"
         data-timezone="America/New_York"
         data-path="/"
 ></div>
 <script>
     let tsml_react_config = {};
 </script>
-<script src="https://tsml-ui.code4recovery.org/app.js" async></script>
+<script src="/app.js" async></script>
 </body>
 </html>
