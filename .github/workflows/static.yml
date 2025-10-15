@@ -3,6 +3,9 @@ name: Deploy to Pages
 on:
   push:
     branches: ["main"]
+  schedule:
+    # Run every Sunday at 2:30 AM UTC (30 minutes after meetings update)
+    - cron: '30 2 * * 0'
   workflow_dispatch:
 
 permissions:
