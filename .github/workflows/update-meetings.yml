@@ -1,0 +1,103 @@
+name: Update Meetings Data
+
+on:
+  schedule:
+    # Run every Sunday at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-meetings:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Fetch meetings data from API
+        env:
+          MEETINGS_URL: ${{ secrets.MEETINGS_URL }}
+        run: |
+          echo "Fetching meetings data from API..."
+          curl -s -H "Accept: application/json" \
+               -H "User-Agent: aacharleston.com/1.0" \
+               "$MEETINGS_URL" \
+               -o docs/meetings.json.tmp
+          
+          # Verify the downloaded file is valid JSON
+          if jq empty docs/meetings.json.tmp 2>/dev/null; then
+            echo "✅ Downloaded valid JSON data"
+            
+            # Check if the file has meaningful content (more than just empty array)
+            MEETING_COUNT=$(jq length docs/meetings.json.tmp)
+            echo "📊 Found $MEETING_COUNT meetings"
+            
+            if [ "$MEETING_COUNT" -gt 0 ]; then
+              # Pretty print the JSON for better readability
+              jq . docs/meetings.json.tmp > docs/meetings.json
+              rm docs/meetings.json.tmp
+              echo "✅ Successfully updated meetings.json with $MEETING_COUNT meetings"
+            else
+              echo "❌ Downloaded data appears to be empty"
+              rm docs/meetings.json.tmp
+              exit 1
+            fi
+          else
+            echo "❌ Downloaded data is not valid JSON"
+            echo "First 100 characters of response:"
+            cat docs/meetings.json.tmp | head -c 100
+            rm docs/meetings.json.tmp
+            exit 1
+          fi
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet docs/meetings.json; then
+            echo "No changes detected in meetings data"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in meetings data"
+            echo "changes=true" >> $GITHUB_OUTPUT
+            
+            # Show a summary of changes
+            echo "📈 Changes summary:"
+            git diff --stat docs/meetings.json
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Get current timestamp for commit message
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          
+          git add docs/meetings.json
+          git commit -m "🔄 Update meetings data - $TIMESTAMP
+          
+          - Automatically updated from API
+          - Meetings count: $(jq length docs/meetings.json)"
+          
+          git push
+          
+          echo "✅ Successfully committed and pushed updated meetings data"
+
+      - name: Create summary
+        run: |
+          MEETING_COUNT=$(jq length docs/meetings.json)
+          LAST_UPDATED=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          
+          echo "## 📅 Meetings Data Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Total Meetings**: $MEETING_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "- **Last Updated**: $LAST_UPDATED" >> $GITHUB_STEP_SUMMARY
+          echo "- **Changes Made**: ${{ steps.check_changes.outputs.changes }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.check_changes.outputs.changes }}" = "true" ]; then
+            echo "- **Status**: ✅ Data updated and committed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Status**: ℹ️ No changes detected" >> $GITHUB_STEP_SUMMARY
+          fi
