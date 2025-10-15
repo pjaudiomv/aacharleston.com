@@ -9,6 +9,59 @@
     <meta name="description" content="AA meeting finder for Berkeley, Charleston and Dorchester Counties of South Carolina" />
     <title>AA Meetings - Berkeley, Charleston and Dorchester Counties of South Carolina</title>
     <style type="text/css">
+        body {
+            margin: 0;
+        }
+
+        .meditation-nav {
+            background: rgba(102, 126, 234, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            flex-wrap: wrap;
+        }
+
+        .meditation-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .meditation-nav a:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .meditation-nav a:active {
+            transform: translateY(0);
+        }
+
+        .meditation-nav a.active {
+            background: rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .meditation-nav {
+                padding: 8px 15px;
+                gap: 8px;
+            }
+
+            .meditation-nav a {
+                font-size: 0.85em;
+                padding: 6px 12px;
+            }
+        }
+
         @media (prefers-color-scheme: dark) {
             body {
                 background-color: black;
@@ -27,8 +80,13 @@
         }
     </style>
 </head>
-<body style="margin: 0">
-<!--https://tcio.org/wp-json/tsml/meetings-->
+<body>
+<nav class="meditation-nav">
+    <a href="/" class="active">Meetings</a>
+    <a href="/dr.html">Daily Reflections</a>
+    <a href="/jft.html">Just For Today</a>
+    <a href="/spad.html">Spiritual Principle A Day</a>
+</nav>
 <div
         id="tsml-ui"
         data-src="/meetings.json"

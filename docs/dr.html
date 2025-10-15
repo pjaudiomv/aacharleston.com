@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AA Daily Reflection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .meditation-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(102, 126, 234, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            flex-wrap: wrap;
+        }
+
+        .meditation-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .meditation-nav a:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .meditation-nav a.active {
+            background: rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            margin-top: 60px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: normal;
+        }
+
+        .date {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .title {
+            font-size: 1.8em;
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .quote-section {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+
+        .quote {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #333;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .source {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .reflection {
+            margin-top: 30px;
+        }
+
+        .reflection p {
+            font-size: 1.05em;
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.2em;
+            color: #667eea;
+        }
+
+        .error {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.1em;
+            color: #dc3545;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.85em;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+        }
+
+        @media (max-width: 768px) {
+            .meditation-nav {
+                padding: 8px 15px;
+                gap: 8px;
+            }
+
+            .meditation-nav a {
+                font-size: 0.85em;
+                padding: 6px 12px;
+            }
+
+            .container {
+                margin-top: 80px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .title {
+                font-size: 1.4em;
+            }
+
+            .content {
+                padding: 25px;
+            }
+
+            .quote {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="meditation-nav">
+    <a href="/">Meetings</a>
+    <a href="/dr.html" class="active">Daily Reflections</a>
+    <a href="/jft.html">Just For Today</a>
+    <a href="/spad.html">Spiritual Principle A Day</a>
+</nav>
+
+<div class="container">
+    <div class="header">
+        <h1>Daily Reflection</h1>
+        <div class="date" id="currentDate"></div>
+    </div>
+
+    <div id="reflectionContent">
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading today's reflection...</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>From the book <em>Daily Reflections</em></p>
+        <p>Copyright © 1990 by Alcoholics Anonymous World Services, Inc.</p>
+    </div>
+</div>
+
+<script>
+    // Get current date
+    const now = new Date();
+    const month = now.getMonth() + 1; // JavaScript months are 0-indexed
+    const day = now.getDate();
+    const dateKey = `${month}-${day}`;
+
+    // Format date for display
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = now.toLocaleDateString('en-US', options);
+    document.getElementById('currentDate').textContent = formattedDate;
+
+    // Fetch today's reflection from local JSON file
+    async function fetchTodaysReflection() {
+        try {
+            const response = await fetch('dr.json');
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const allReflections = await response.json();
+
+            // Get today's reflection
+            const todaysReflection = allReflections[dateKey];
+
+            if (todaysReflection) {
+                displayReflection(todaysReflection);
+            } else {
+                throw new Error(`No reflection found for ${dateKey}`);
+            }
+
+        } catch (error) {
+            console.error('Error fetching reflection:', error);
+            displayError(error.message);
+        }
+    }
+
+    function displayReflection(reflection) {
+        const contentDiv = document.getElementById('reflectionContent');
+
+        let contentHtml = '<div class="content">';
+        contentHtml += `<div class="title">${escapeHtml(reflection.title)}</div>`;
+
+        contentHtml += '<div class="quote-section">';
+        contentHtml += `<div class="quote">${escapeHtml(reflection.quote)}</div>`;
+        contentHtml += `<div class="source">${escapeHtml(reflection.source)}</div>`;
+        contentHtml += '</div>';
+
+        contentHtml += '<div class="reflection">';
+        reflection.content.forEach(paragraph => {
+            contentHtml += `<p>${escapeHtml(paragraph)}</p>`;
+        });
+        contentHtml += '</div>';
+
+        contentHtml += '</div>';
+
+        contentDiv.innerHTML = contentHtml;
+    }
+
+    function displayError(message) {
+        const contentDiv = document.getElementById('reflectionContent');
+        contentDiv.innerHTML = `
+                <div class="error">
+                    <h2>Oops!</h2>
+                    <p>Unable to load today's reflection.</p>
+                    <p style="font-size: 0.9em; margin-top: 10px;">Error: ${escapeHtml(message)}</p>
+                    <p style="font-size: 0.85em; margin-top: 15px;">Make sure <code>dr.json</code> is in the same directory as this HTML file.</p>
+                </div>
+            `;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Load reflection when page loads
+    fetchTodaysReflection();
+</script>
+</body>
+</html>

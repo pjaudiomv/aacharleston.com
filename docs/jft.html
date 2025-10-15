@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NA Just For Today</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .meditation-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(17, 153, 142, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            flex-wrap: wrap;
+        }
+
+        .meditation-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .meditation-nav a:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .meditation-nav a.active {
+            background: rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            margin-top: 60px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.95;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .date {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .title {
+            font-size: 1.8em;
+            color: #11998e;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .page-number {
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quote-section {
+            background: #f0fdf4;
+            border-left: 4px solid #11998e;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+
+        .quote {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #333;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .source {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .reflection {
+            margin-top: 30px;
+        }
+
+        .reflection p {
+            font-size: 1.05em;
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .thought-section {
+            background: linear-gradient(135deg, #11998e15 0%, #38ef7d15 100%);
+            border: 2px solid #11998e;
+            padding: 25px;
+            margin-top: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .thought-label {
+            font-size: 0.85em;
+            color: #11998e;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .thought {
+            font-size: 1.15em;
+            line-height: 1.6;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.2em;
+            color: #11998e;
+        }
+
+        .error {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.1em;
+            color: #dc3545;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #11998e;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            background: #f0fdf4;
+            padding: 20px;
+            text-align: center;
+            font-size: 0.85em;
+            color: #666;
+            border-top: 1px solid #e9ecef;
+        }
+
+        @media (max-width: 768px) {
+            .meditation-nav {
+                padding: 8px 15px;
+                gap: 8px;
+            }
+
+            .meditation-nav a {
+                font-size: 0.85em;
+                padding: 6px 12px;
+            }
+
+            .container {
+                margin-top: 80px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .title {
+                font-size: 1.4em;
+            }
+
+            .content {
+                padding: 25px;
+            }
+
+            .quote {
+                font-size: 1em;
+            }
+
+            .thought {
+                font-size: 1.05em;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="meditation-nav">
+    <a href="/">Meetings</a>
+    <a href="/dr.html">Daily Reflections</a>
+    <a href="/jft.html" class="active">Just For Today</a>
+    <a href="/spad.html">Spiritual Principle A Day</a>
+</nav>
+
+<div class="container">
+    <div class="header">
+        <h1>Just For Today</h1>
+        <div class="subtitle">Narcotics Anonymous</div>
+        <div class="date" id="currentDate"></div>
+    </div>
+
+    <div id="reflectionContent">
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading today's meditation...</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p id="copyright">Copyright (c) 2007-2022, NA World Services, Inc. All Rights Reserved</p>
+    </div>
+</div>
+
+<script>
+    // Get current date
+    const now = new Date();
+    const month = now.getMonth() + 1; // JavaScript months are 0-indexed
+    const day = now.getDate();
+
+    // Format date key with leading zeros (e.g., "01-01")
+    const dateKey = `${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+    // Format date for display
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = now.toLocaleDateString('en-US', options);
+    document.getElementById('currentDate').textContent = formattedDate;
+
+    // Fetch today's meditation from local JSON file
+    async function fetchTodaysMeditation() {
+        try {
+            const response = await fetch('jft.json');
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const allMeditations = await response.json();
+
+            // Get today's meditation
+            const todaysMeditation = allMeditations[dateKey];
+
+            if (todaysMeditation) {
+                displayMeditation(todaysMeditation);
+            } else {
+                throw new Error(`No meditation found for ${dateKey}`);
+            }
+
+        } catch (error) {
+            console.error('Error fetching meditation:', error);
+            displayError(error.message);
+        }
+    }
+
+    function displayMeditation(meditation) {
+        const contentDiv = document.getElementById('reflectionContent');
+
+        let contentHtml = '<div class="content">';
+        contentHtml += `<div class="title">${escapeHtml(meditation.title)}</div>`;
+        contentHtml += `<div class="page-number">${escapeHtml(meditation.page)}</div>`;
+
+        contentHtml += '<div class="quote-section">';
+        contentHtml += `<div class="quote">${escapeHtml(meditation.quote)}</div>`;
+        contentHtml += `<div class="source">${escapeHtml(meditation.source)}</div>`;
+        contentHtml += '</div>';
+
+        contentHtml += '<div class="reflection">';
+        meditation.content.forEach(paragraph => {
+            contentHtml += `<p>${escapeHtml(paragraph)}</p>`;
+        });
+        contentHtml += '</div>';
+
+        if (meditation.thought) {
+            contentHtml += '<div class="thought-section">';
+            contentHtml += '<div class="thought-label">Just For Today</div>';
+            contentHtml += `<div class="thought">${escapeHtml(meditation.thought)}</div>`;
+            contentHtml += '</div>';
+        }
+
+        contentHtml += '</div>';
+
+        contentDiv.innerHTML = contentHtml;
+
+        // Update copyright in footer
+        if (meditation.copyright) {
+            document.getElementById('copyright').textContent = meditation.copyright;
+        }
+    }
+
+    function displayError(message) {
+        const contentDiv = document.getElementById('reflectionContent');
+        contentDiv.innerHTML = `
+                <div class="error">
+                    <h2>Oops!</h2>
+                    <p>Unable to load today's meditation.</p>
+                    <p style="font-size: 0.9em; margin-top: 10px;">Error: ${escapeHtml(message)}</p>
+                    <p style="font-size: 0.85em; margin-top: 15px;">Make sure <code>jft.json</code> is in the same directory as this HTML file.</p>
+                </div>
+            `;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Load meditation when page loads
+    fetchTodaysMeditation();
+</script>
+</body>
+</html>
