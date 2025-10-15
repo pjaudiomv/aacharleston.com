@@ -289,29 +289,56 @@
     const formattedDate = now.toLocaleDateString('en-US', options);
     document.getElementById('currentDate').textContent = formattedDate;
 
-    // Fetch today's meditation from local JSON file
-    async function fetchTodaysMeditation() {
+    function showLoading() {
+        const contentDiv = document.getElementById('reflectionContent');
+        contentDiv.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading today's meditation...</p>
+            </div>
+        `;
+    }
+
+    function hideLoading() {
+        // Loading content will be replaced by displayMeditation
+    }
+
+    function showError(message) {
+        const contentDiv = document.getElementById('reflectionContent');
+        contentDiv.innerHTML = `
+            <div class="error">
+                <h2>Oops!</h2>
+                <p>Unable to load today's meditation.</p>
+                <p style="font-size: 0.9em; margin-top: 10px;">Error: ${escapeHtml(message)}</p>
+                <p style="font-size: 0.85em; margin-top: 15px;">Please try refreshing the page.</p>
+            </div>
+        `;
+    }
+
+    // Load just today's meditation file
+    async function loadTodaysMeditation() {
         try {
-            const response = await fetch('jft.json');
-
+            showLoading();
+            
+            // Load just today's meditation file
+            const response = await fetch(`./jft/${dateKey}.json`);
+            
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`Failed to load meditation for ${dateKey}`);
             }
-
-            const allMeditations = await response.json();
-
-            // Get today's meditation
-            const todaysMeditation = allMeditations[dateKey];
-
-            if (todaysMeditation) {
-                displayMeditation(todaysMeditation);
-            } else {
+            
+            const data = await response.json();
+            const todaysMeditation = data[dateKey];
+            
+            if (!todaysMeditation) {
                 throw new Error(`No meditation found for ${dateKey}`);
             }
-
+            
+            displayMeditation(todaysMeditation);
+            
         } catch (error) {
-            console.error('Error fetching meditation:', error);
-            displayError(error.message);
+            console.error('Error loading meditation:', error);
+            showError('Sorry, there was an error loading today\'s meditation. Please try again later.');
         }
     }
 
@@ -350,18 +377,6 @@
         }
     }
 
-    function displayError(message) {
-        const contentDiv = document.getElementById('reflectionContent');
-        contentDiv.innerHTML = `
-                <div class="error">
-                    <h2>Oops!</h2>
-                    <p>Unable to load today's meditation.</p>
-                    <p style="font-size: 0.9em; margin-top: 10px;">Error: ${escapeHtml(message)}</p>
-                    <p style="font-size: 0.85em; margin-top: 15px;">Make sure <code>jft.json</code> is in the same directory as this HTML file.</p>
-                </div>
-            `;
-    }
-
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
@@ -369,7 +384,7 @@
     }
 
     // Load meditation when page loads
-    fetchTodaysMeditation();
+    loadTodaysMeditation();
 </script>
 </body>
 </html>

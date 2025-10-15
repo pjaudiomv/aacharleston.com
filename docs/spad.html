@@ -287,60 +287,86 @@
     // Format date key with leading zeros (e.g., "01-01")
     const dateKey = `${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-    // Format date for display (matches the "1 JANUARY" format in the JSON)
-    const monthNames = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
-        'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
-    const formattedDate = `${day} ${monthNames[month - 1]}`;
+    // Format date for display
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const formattedDate = now.toLocaleDateString('en-US', options);
     document.getElementById('currentDate').textContent = formattedDate;
 
-    // Fetch today's spiritual principle from local JSON file
-    async function fetchTodaysPrinciple() {
+    function showLoading() {
+        const contentDiv = document.getElementById('reflectionContent');
+        contentDiv.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading today's meditation...</p>
+            </div>
+        `;
+    }
+
+    function hideLoading() {
+        // Loading content will be replaced by displayMeditation
+    }
+
+    function showError(message) {
+        const contentDiv = document.getElementById('reflectionContent');
+        contentDiv.innerHTML = `
+            <div class="error">
+                <h2>Oops!</h2>
+                <p>Unable to load today's meditation.</p>
+                <p style="font-size: 0.9em; margin-top: 10px;">Error: ${escapeHtml(message)}</p>
+                <p style="font-size: 0.85em; margin-top: 15px;">Please try refreshing the page.</p>
+            </div>
+        `;
+    }
+
+    // Load just today's meditation file
+    async function loadTodaysMeditation() {
         try {
-            const response = await fetch('spad.json');
-
+            showLoading();
+            
+            // Load just today's meditation file
+            const response = await fetch(`./spad/${dateKey}.json`);
+            
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`Failed to load meditation for ${dateKey}`);
             }
-
-            const allPrinciples = await response.json();
-
-            // Get today's principle
-            const todaysPrinciple = allPrinciples[dateKey];
-
-            if (todaysPrinciple) {
-                displayPrinciple(todaysPrinciple);
-            } else {
-                throw new Error(`No spiritual principle found for ${dateKey}`);
+            
+            const data = await response.json();
+            const todaysMeditation = data[dateKey];
+            
+            if (!todaysMeditation) {
+                throw new Error(`No meditation found for ${dateKey}`);
             }
-
+            
+            displayMeditation(todaysMeditation);
+            
         } catch (error) {
-            console.error('Error fetching spiritual principle:', error);
-            displayError(error.message);
+            console.error('Error loading meditation:', error);
+            showError('Sorry, there was an error loading today\'s meditation. Please try again later.');
         }
     }
 
-    function displayPrinciple(principle) {
+    function displayMeditation(meditation) {
         const contentDiv = document.getElementById('reflectionContent');
 
         let contentHtml = '<div class="content">';
-        contentHtml += `<div class="title">${escapeHtml(principle.title)}</div>`;
-        contentHtml += `<div class="page-number">${escapeHtml(principle.page)}</div>`;
+        contentHtml += `<div class="title">${escapeHtml(meditation.title)}</div>`;
+        contentHtml += `<div class="page-number">${escapeHtml(meditation.page)}</div>`;
 
         contentHtml += '<div class="quote-section">';
-        contentHtml += `<div class="quote">${escapeHtml(principle.quote)}</div>`;
-        contentHtml += `<div class="source">${escapeHtml(principle.source)}</div>`;
+        contentHtml += `<div class="quote">${escapeHtml(meditation.quote)}</div>`;
+        contentHtml += `<div class="source">${escapeHtml(meditation.source)}</div>`;
         contentHtml += '</div>';
 
         contentHtml += '<div class="reflection">';
-        principle.content.forEach(paragraph => {
+        meditation.content.forEach(paragraph => {
             contentHtml += `<p>${escapeHtml(paragraph)}</p>`;
         });
         contentHtml += '</div>';
 
-        if (principle.thought) {
+        if (meditation.thought) {
             contentHtml += '<div class="thought-section">';
-            contentHtml += '<div class="thought-label">Today\'s Reflection</div>';
-            contentHtml += `<div class="thought">${escapeHtml(principle.thought)}</div>`;
+            contentHtml += '<div class="thought-label">Just For Today</div>';
+            contentHtml += `<div class="thought">${escapeHtml(meditation.thought)}</div>`;
             contentHtml += '</div>';
         }
 
@@ -349,21 +375,9 @@
         contentDiv.innerHTML = contentHtml;
 
         // Update copyright in footer
-        if (principle.copyright) {
-            document.getElementById('copyright').textContent = principle.copyright;
+        if (meditation.copyright) {
+            document.getElementById('copyright').textContent = meditation.copyright;
         }
-    }
-
-    function displayError(message) {
-        const contentDiv = document.getElementById('reflectionContent');
-        contentDiv.innerHTML = `
-                <div class="error">
-                    <h2>Oops!</h2>
-                    <p>Unable to load today's spiritual principle.</p>
-                    <p style="font-size: 0.9em; margin-top: 10px;">Error: ${escapeHtml(message)}</p>
-                    <p style="font-size: 0.85em; margin-top: 15px;">Make sure <code>spad.json</code> is in the same directory as this HTML file.</p>
-                </div>
-            `;
     }
 
     function escapeHtml(text) {
@@ -372,8 +386,8 @@
         return div.innerHTML;
     }
 
-    // Load spiritual principle when page loads
-    fetchTodaysPrinciple();
+    // Load meditation when page loads
+    loadTodaysMeditation();
 </script>
 </body>
 </html>
